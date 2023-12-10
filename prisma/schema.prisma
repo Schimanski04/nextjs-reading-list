@@ -1,0 +1,21 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Book {
+  id     Int    @id @default(autoincrement())
+  title  String
+  author String
+  status Status @default(I_WANT_TO_READ)
+}
+
+enum Status {
+  IVE_READ
+  IAM_READING
+  I_WANT_TO_READ
+}

@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: light) {
+  main {
+    background-color: #E5E7EB;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  main {
+    background-color: #1F2937;
+  }
+}
