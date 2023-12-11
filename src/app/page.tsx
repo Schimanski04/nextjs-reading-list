@@ -79,7 +79,7 @@ export default function Home() {
           {books.map((book: Book) => (
             <div
               key={book.id}
-              className="flex flex-row justify-between items-center border-b-2 border-gray-300 py-2"
+              className="flex flex-row justify-between items-center border-b-2 border-gray-200 py-2"
             >
               <div className="flex flex-col">
                 <h3 className={book.status == "IVE_READ" ? "text-xl font-bold line-through" : "text-xl font-bold"}>{book.title}</h3>
@@ -106,7 +106,7 @@ export default function Home() {
                 </button>
                 <Link href={`/books/${book.id}/json`}>
                   <button
-                    className="bg-neutral-400 hover:bg-neutral-600 text-white font-bold py-2 px-4 rounded ml-2"
+                    className="bg-amber-400 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded ml-2"
                   >
                     <FontAwesomeIcon icon={faDatabase} />
                     <span className="ml-2">View JSON</span>
