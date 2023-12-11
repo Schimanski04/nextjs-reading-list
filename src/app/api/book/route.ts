@@ -15,8 +15,10 @@ export async function GET(req: Request, res: Response) {
 
 // POST a new book
 export async function POST(req: Request, res: Response) {
+  const body = await req.json();
+
   const newBook = await prisma.book.create({
-    data: req.body,
+    data: body,
   });
   // res.json(newBook)
   return new Response(
@@ -34,7 +36,7 @@ export async function PATCH(req: Request, res: Response) {
 
   const updatedBook = await prisma.book.update({
     where: { id: Number(body.id) },
-    data: req.body,
+    data: body,
   });
   // res.json(updatedBook);
   return new Response(
