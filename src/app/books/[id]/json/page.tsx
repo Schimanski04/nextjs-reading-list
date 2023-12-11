@@ -5,7 +5,6 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
-import { Book } from "@/types";
 
 export default function JsonPage({ params }: { params: { id: number } }) {
   const [book, setBook] = useState<Book>();

@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faDatabase } from "@fortawesome/free-solid-svg-icons";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
-import { Book } from "@/types";
 
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
+  const refDialog: any = useRef(null);
 
   useEffect(() => {
 
@@ -64,8 +64,9 @@ export default function Home() {
       <button
         className="bg-green-500 hover:bg-green-700 text-white font-bold p-2 rounded-full absolute top-0 right-0 m-5 w-12 h-12 flex items-center justify-center"
         onClick={() => {
-          const modal = document.querySelector("dialog") as HTMLDialogElement;
-          modal.showModal();
+          // const modal = document.querySelector("dialog") as HTMLDialogElement;
+          // modal.showModal();
+          refDialog.current.showModal();
         }}
       >
         <FontAwesomeIcon icon={faPlus} size="xl" />
@@ -124,7 +125,7 @@ export default function Home() {
       </div>
 
       {/* Modal for adding a new book */}
-      <dialog className="p-0 backdrop:bg-gray-400 backdrop:bg-opacity-50 rounded-md">
+      <dialog className="p-0 backdrop:bg-gray-400 backdrop:bg-opacity-50 rounded-md" ref={refDialog}>
         <div className="bg-white p-6 rounded shadow-md w-80">
           <h2 className="text-2xl mb-4">Add a new book</h2>
           <form onSubmit={(e) => handleAdd(e)}>
@@ -147,8 +148,9 @@ export default function Home() {
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button"
                 onClick={() => {
-                  const modal = document.querySelector("dialog") as HTMLDialogElement;
-                  modal.close();
+                  // const modal = document.querySelector("dialog") as HTMLDialogElement;
+                  // modal.close();
+                  refDialog.current.close();
                 }}
               >
                 Cancel
