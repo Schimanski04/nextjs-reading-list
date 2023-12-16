@@ -1,27 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export default function JsonPage({ params }: { params: { id: number } }) {
   const [book, setBook] = useState<Book>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    fetch(`/api/books/${params.id}`, { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        setBook(data);
+        setIsLoading(false);
+      });
+  }, []);
 
   const handleCopy = async () => {
     try {
-      // await navigator.clipboard.writeText(JSON.stringify(book, null, 2));
       await navigator.clipboard.writeText(
-        JSON.stringify(
-          { id: 1, title: "test1", author: "test1", status: "IVE_READ" },
-          null,
-          2
-        )
+        JSON.stringify(book, null, 2)
       );
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 5000);
+      setTimeout(() => setIsCopied(false), 4000);
     } catch (err) {
       setIsCopied(false);
     }
@@ -39,6 +46,7 @@ export default function JsonPage({ params }: { params: { id: number } }) {
           <FontAwesomeIcon icon={faHouse} size="xl" />
         </Link>
 
+        {/* JSON */}
         <div className="relative bg-gray-800 p-4 rounded text-white font-mono text-sm overflow-x-auto w-5/6">
           <div className="absolute top-0 left-0 flex space-x-1 m-3">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -56,14 +64,13 @@ export default function JsonPage({ params }: { params: { id: number } }) {
             <span className="block text-green-400">
               // Book Information in JSON Format
             </span>
-            <code>
-              {/* {JSON.stringify(book, null, 2)} */}
-              {JSON.stringify(
-                { id: 1, title: "test1", author: "test1", status: "IVE_READ" },
-                null,
-                2
-              )}
-            </code>
+            {isLoading ? (
+              <Skeleton height={16} count={6} baseColor="#2b3747" highlightColor="#3b4757" />
+            ) : (
+              <code className="text-slate-300">
+                {JSON.stringify(book, null, 2)}
+              </code>
+            )}
           </pre>
         </div>
       </div>

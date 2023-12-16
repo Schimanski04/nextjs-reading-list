@@ -1,164 +1,190 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faDatabase } from "@fortawesome/free-solid-svg-icons";
-import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "sonner";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import BookItem from "@/components/BookItem";
+import AddBookDialog from "@/components/AddBookDialog";
+import DeleteBookDialog from "@/components/DeleteBookDialog";
 
-export default function Home() {
+const Home = () => {
   const [books, setBooks] = useState<Book[]>([]);
-  const refDialog: any = useRef(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [bookIdToDelete, setBookIdToDelete] = useState<number>(0);
+  const refAddDialog: any = useRef(null);
+  const refDeleteDialog: any = useRef(null);
 
   useEffect(() => {
+    fetch("/api/books", { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        setBooks(data);
+        setIsLoading(false);
+      });
+  }, []);
 
-    setBooks([
-      { id: 1, title: "test1", author: "test1", status: "IVE_READ" },
-      { id: 2, title: "test2", author: "test2", status: "IAM_READING" },
-      { id: 3, title: "test3", author: "test3", status: "I_WANT_TO_READ" },
-      { id: 4, title: "test4", author: "test4", status: "IVE_READ" },
-      { id: 5, title: "test5", author: "test5", status: "IVE_READ" },
-      { id: 6, title: "test6", author: "test6", status: "IAM_READING" },
-      { id: 7, title: "test7", author: "test7", status: "I_WANT_TO_READ" },
-      { id: 8, title: "test8", author: "test8", status: "IVE_READ" },
-      { id: 9, title: "test9", author: "test9", status: "IVE_READ" },
-      { id: 10, title: "test10", author: "test10", status: "I_WANT_TO_READ" },
-    ]);
-  }, [])
-
-  const handleAdd = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     const title = (e.target as any).title.value;
     const author = (e.target as any).author.value;
-    const status = "I_WANT_TO_READ";
 
-    setBooks([...books, { id: books.length + 1, title, author, status }]);
+    await fetch("/api/books", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      body: JSON.stringify({
+        title: title,
+        author: author,
+        status: "I_WANT_TO_READ",
+      }),
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(res.statusText);
+      }
+      return res.json();
+    })
+    .then((newBook) => {
+      toast.success("Book added successfully");
+      fetch("/api/books", { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        setBooks(data);
+        setIsLoading(false);
+      });
+    })
+    .catch((err) => {
+      toast.error("Error adding book");
+      setIsLoading(false);
+    });
 
-    const modal = document.querySelector("dialog") as HTMLDialogElement;
-    modal.close();
+    refAddDialog.current.close();
 
     (e.target as any).title.value = "";
     (e.target as any).author.value = "";
   }
 
-  const handleChangeStatus = (book: Book, status: "IVE_READ" | "IAM_READING" | "I_WANT_TO_READ") => {
-    const updatedBooks: Book[] = books.map((b) => {
-      if (b.id === book.id) {
-        return { ...b, status: status };
+  const handleChangeStatus = async (id: number, status: "IVE_READ" | "IAM_READING" | "I_WANT_TO_READ") => {
+    setIsLoading(true);
+    await fetch(`/api/books/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      body: JSON.stringify({
+        status: status,
+      }),
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(res.statusText);
       }
-      return b;
+      return res.json();
+    })
+    .then((updatedBook) => {
+      toast.success("Book status updated successfully");
+      fetch("/api/books", { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        setBooks(data);
+        setIsLoading(false);
+      });
+    })
+    .catch((err) => {
+      toast.error("Error updating book status");
+      setIsLoading(false);
     });
-  
-    setBooks(updatedBooks);
   }
 
-  const handleDelete = (id: number) => {
-    setBooks(books.filter((book) => book.id !== id));
+  const handleDelete = async (id: number) => {
+    setIsLoading(true);
+    await fetch (`/api/books/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(res.statusText);
+      }
+      return res.json();
+    })
+    .then((deletedBook) => {
+      toast.success("Book deleted successfully");
+      fetch("/api/books", { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        setBooks(data);
+        setIsLoading(false);
+      });
+    })
+    .catch((err) => {
+      toast.error("Error deleting book");
+      setIsLoading(false);
+    });
+
+    refDeleteDialog.current.close();
   }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-12">
-
+      
       {/* Add button */}
       <button
         className="bg-green-500 hover:bg-green-700 text-white font-bold p-2 rounded-full absolute top-0 right-0 m-5 w-12 h-12 flex items-center justify-center"
         onClick={() => {
-          // const modal = document.querySelector("dialog") as HTMLDialogElement;
-          // modal.showModal();
-          refDialog.current.showModal();
+          refAddDialog.current.showModal();
         }}
       >
         <FontAwesomeIcon icon={faPlus} size="xl" />
       </button>
 
+      {/* Title */}
       <Image src="/books.svg" alt="Books" width={125} height={125} />
       <h1 className="text-4xl font-bold my-4">My Reading List</h1>
+
+      {/* Books list */}
       <div className="flex flex-col w-full">
         <div className="flex flex-col mt-4">
-          {books.map((book: Book) => (
-            <div
-              key={book.id}
-              className="flex flex-row justify-between items-center border-b-2 border-gray-200 py-2"
-            >
-              <div className="flex flex-col">
-                <h3 className={book.status == "IVE_READ" ? "text-xl font-bold line-through" : "text-xl font-bold"}>{book.title}</h3>
-                <p className="text-gray-500">{book.author}</p>
-              </div>
-              <div className="flex flex-row">
-                <button
-                  className={book.status == "IVE_READ" ? "bg-blue-500 text-white font-bold py-2 px-4 rounded" : "bg-blue-300 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"}
-                  onClick={() => handleChangeStatus(book, "IVE_READ")}
-                >
-                  I've Read
-                </button>
-                <button
-                  className={book.status == "IAM_READING" ? "bg-blue-500 text-white font-bold py-2 px-4 rounded mx-2" : "bg-blue-300 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded mx-2"}
-                  onClick={() => handleChangeStatus(book, "IAM_READING")}
-                >
-                  I'm Reading
-                </button>
-                <button
-                  className={book.status == "I_WANT_TO_READ" ? "bg-blue-500 text-white font-bold py-2 px-4 rounded" : "bg-blue-300 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"}
-                  onClick={() => handleChangeStatus(book, "I_WANT_TO_READ")}
-                >
-                  I Want to Read
-                </button>
-                <Link href={`/books/${book.id}/json`}>
-                  <button
-                    className="bg-amber-400 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded ml-2"
-                  >
-                    <FontAwesomeIcon icon={faDatabase} />
-                    <span className="ml-2">View JSON</span>
-                  </button>
-                </Link>
-                <button
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
-                  onClick={() => handleDelete(book.id)}
-                >
-                  <FontAwesomeIcon icon={faTrashCan} />
-                </button>
-              </div>
-            </div>
-          ))}
+          {isLoading ? (
+            <Skeleton count={5} height={52} className="mt-2 mb-[9.6px]" />
+          ) : (
+            books.length > 0 ? (
+              books.map((book: Book) => (
+                <BookItem
+                  key={book.id}
+                  book={book}
+                  handleChangeStatus={handleChangeStatus}
+                  setBookIdToDelete={setBookIdToDelete}
+                  refDeleteDialog={refDeleteDialog}
+                />
+              ))
+            ) : (
+              <p className="text-center text-gray-600">No books available.</p>
+            )
+          )}
         </div>
       </div>
 
       {/* Modal for adding a new book */}
-      <dialog className="p-0 backdrop:bg-gray-400 backdrop:bg-opacity-50 rounded-md" ref={refDialog}>
-        <div className="bg-white p-6 rounded shadow-md w-80">
-          <h2 className="text-2xl mb-4">Add a new book</h2>
-          <form onSubmit={(e) => handleAdd(e)}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
-                Title
-              </label>
-              <input className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" name="title" type="text" placeholder="Book title" />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="author">
-                Author
-              </label>
-              <input className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="author" name="author" type="text" placeholder="Author name" />
-            </div>
-            <div className="flex items-center justify-between">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                Submit
-              </button>
-              <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button"
-                onClick={() => {
-                  // const modal = document.querySelector("dialog") as HTMLDialogElement;
-                  // modal.close();
-                  refDialog.current.close();
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
+      <AddBookDialog handleAdd={handleAdd} refAddDialog={refAddDialog} />
+
+      {/* Modal for deleting a book */}
+      <DeleteBookDialog
+        handleDelete={handleDelete}
+        bookIdToDelete={bookIdToDelete}
+        setBookIdToDelete={setBookIdToDelete}
+        refDeleteDialog={refDeleteDialog}
+      />
     </main>
   )
 }
+
+export default Home;
