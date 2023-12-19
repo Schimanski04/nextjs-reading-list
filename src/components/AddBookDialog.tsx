@@ -1,7 +1,7 @@
 type AddBookDialogProps = {
   handleAdd: (e: React.FormEvent<HTMLFormElement>) => void;
-  refAddDialog: any;
-}
+  refAddDialog: React.RefObject<HTMLDialogElement>;
+};
 
 const AddBookDialog: React.FC<AddBookDialogProps> = ({ handleAdd, refAddDialog }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +75,7 @@ const AddBookDialog: React.FC<AddBookDialogProps> = ({ handleAdd, refAddDialog }
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
               onClick={() => {
-                refAddDialog.current.close();
+                refAddDialog.current?.close();
               }}
             >
               Cancel

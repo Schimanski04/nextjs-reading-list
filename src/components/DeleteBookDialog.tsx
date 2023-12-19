@@ -2,8 +2,8 @@ type DeleteBookDialogProps = {
   handleDelete: (id: number) => void;
   bookIdToDelete: number;
   setBookIdToDelete: (id: number) => void;
-  refDeleteDialog: any;
-}
+  refDeleteDialog: React.RefObject<HTMLDialogElement>;
+};
 
 const DeleteBookDialog: React.FC<DeleteBookDialogProps> = ({ handleDelete, bookIdToDelete, setBookIdToDelete, refDeleteDialog }) => {
   return (
@@ -30,7 +30,7 @@ const DeleteBookDialog: React.FC<DeleteBookDialogProps> = ({ handleDelete, bookI
             type="button"
             onClick={() => {
               setBookIdToDelete(0);
-              refDeleteDialog.current.close();
+              refDeleteDialog.current?.close();
             }}
           >
             Cancel

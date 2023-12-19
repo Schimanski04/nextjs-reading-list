@@ -15,8 +15,8 @@ const Home = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [bookIdToDelete, setBookIdToDelete] = useState<number>(0);
-  const refAddDialog: any = useRef(null);
-  const refDeleteDialog: any = useRef(null);
+  const refAddDialog: React.RefObject<HTMLDialogElement> = useRef(null);
+  const refDeleteDialog: React.RefObject<HTMLDialogElement> = useRef(null);
 
   useEffect(() => {
     fetch("/api/books", { method: "GET" })
@@ -64,7 +64,7 @@ const Home = () => {
       setIsLoading(false);
     });
 
-    refAddDialog.current.close();
+    refAddDialog.current?.close();
 
     (e.target as any).title.value = "";
     (e.target as any).author.value = "";
@@ -130,7 +130,7 @@ const Home = () => {
       setIsLoading(false);
     });
 
-    refDeleteDialog.current.close();
+    refDeleteDialog.current?.close();
   }
 
   return (
@@ -140,7 +140,7 @@ const Home = () => {
       <button
         className="bg-green-500 hover:bg-green-700 text-white font-bold p-2 rounded-full absolute top-0 right-0 m-5 w-12 h-12 flex items-center justify-center"
         onClick={() => {
-          refAddDialog.current.showModal();
+          refAddDialog.current?.showModal();
         }}
       >
         <FontAwesomeIcon icon={faPlus} size="xl" />

@@ -13,8 +13,8 @@ type BookItemProps = {
   book: Book;
   handleChangeStatus: (id: number, status: Book["status"]) => void;
   setBookIdToDelete: (id: number) => void;
-  refDeleteDialog: any;
-}
+  refDeleteDialog: React.RefObject<HTMLDialogElement>;
+};
 
 const BookItem: React.FC<BookItemProps> = ({ book, handleChangeStatus, setBookIdToDelete, refDeleteDialog }) => {
   return (
@@ -75,7 +75,7 @@ const BookItem: React.FC<BookItemProps> = ({ book, handleChangeStatus, setBookId
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
           onClick={() => {
             setBookIdToDelete(book.id);
-            refDeleteDialog.current.showModal();
+            refDeleteDialog.current?.showModal();
           }}
         >
           <FontAwesomeIcon icon={faTrashCan} />

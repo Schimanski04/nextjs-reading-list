@@ -10,6 +10,6 @@
   - Responzivita není povinná 🟡
 
 ## Bonusy pro lepší známku
-- Aplikace je napsaná v Typescriptu a nikde se nenachází typování pomocí :any (až na useRef() je to splněno) 🟢
+- Aplikace je napsaná v Typescriptu a nikde se nenachází typování pomocí :any 🟢
 - Aplikace pro stylování používá styled components 🔴
 - Aplikace má během načítání dat z API nějaký zajímavý loading screen (React Loading Skeleton) 🟢
